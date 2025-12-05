@@ -2,6 +2,68 @@ import tkinter as tk
 from tkinter import messagebox
 
 # ----------------------------------------------------
+# GUI設定とウィジェット配置
+# ----------------------------------------------------
+
+# ルートウィンドウの作成
+root = tk.Tk()
+root.title("Python GUI 電卓")
+root.geometry("400x500") # ウィンドウのサイズを電卓らしく設定
+
+
+# Tkinterで文字列を扱うための特殊な変数を作成・定義する
+display_var = tk.StringVar()
+
+# --- 1. 表示エリア（ディスプレイ）の配置 ---
+display_label = tk.Label(root, textvariable=display_var, font=("Arial", 36),
+                         anchor="e", # 右寄せ
+                         bg="#333333", # 背景色
+                         fg="white", # 文字色
+                         padx=20, pady=20)
+# grid(row=0, column=0)から4列分をまたいで（columnspan=4）配置
+display_label.grid(row=0, column=0, columnspan=4, sticky="nsew")
+
+# --- 2. ボタンの定義と配置 ---
+buttons = [
+    ('C', 1, 0), ('/', 1, 3),
+    ('7', 2, 0), ('8', 2, 1), ('9', 2, 2), ('*', 2, 3),
+    ('4', 3, 0), ('5', 3, 1), ('6', 3, 2), ('-', 3, 3),
+    ('1', 4, 0), ('2', 4, 1), ('3', 4, 2), ('+', 4, 3),
+    ('0', 5, 0), ('.', 5, 1), ('=', 5, 2),
+]
+
+# ボタンの色設定
+def get_button_color(text):
+    if text in ('+', '-', '*', '/', '='):
+        return "#FF9900" # 演算子
+    elif text == 'C':
+        return "#AAAAAA" # クリア
+    else:
+        return "#CCCCCC" # 数字・小数点
+
+for (text, row, col) in buttons:
+    # 0ボタンを2列分に広げる
+    columnspan = 2 if text == '0' else 1
+    col = 0 if text == '0' else col
+
+    button_bg = get_button_color(text)
+
+    # commandに引数付きの関数を設定するためには lambda を使用します
+    button = tk.Button(root, text=text, font=("Arial", 20, "bold"),
+                       bg=button_bg, fg="black", # 色設定を適用
+                       command=lambda t=text: button_click(t))
+
+    button.grid(row=row, column=col, columnspan=columnspan, sticky="nsew", padx=2, pady=2)
+
+
+# --- 3. ウィンドウの行と列の重み付け設定 ---
+# これにより、ウィンドウのサイズを変更したときにボタンやディスプレイが拡大・縮小するようになります
+for i in range(6): # row 0（ディスプレイ）から row 5（最後のボタン）まで
+    root.grid_rowconfigure(i, weight=1)
+for i in range(4): # column 0 から column 3 まで
+    root.grid_columnconfigure(i, weight=1)
+
+# ----------------------------------------------------
 # 状態管理変数
 # ----------------------------------------------------
 # StringVar: Tkinterでウィジェット（Labelなど）の表示内容を動的に変更するための変数
@@ -122,66 +184,6 @@ def button_click(text):
                 messagebox.showerror("エラー", "不正な入力です")
                 button_click('C')
             return
-
-
-# ----------------------------------------------------
-# GUI設定とウィジェット配置
-# ----------------------------------------------------
-
-# ルートウィンドウの作成
-root = tk.Tk()
-root.title("Python GUI 電卓")
-root.geometry("400x500") # ウィンドウのサイズを電卓らしく設定
-
-# --- 1. 表示エリア（ディスプレイ）の配置 ---
-display_label = tk.Label(root, textvariable=display_var, font=("Arial", 36),
-                         anchor="e", # 右寄せ
-                         bg="#333333", # 背景色
-                         fg="white", # 文字色
-                         padx=20, pady=20)
-# grid(row=0, column=0)から4列分をまたいで（columnspan=4）配置
-display_label.grid(row=0, column=0, columnspan=4, sticky="nsew")
-
-
-# --- 2. ボタンの定義と配置 ---
-buttons = [
-    ('C', 1, 0), ('/', 1, 3),
-    ('7', 2, 0), ('8', 2, 1), ('9', 2, 2), ('*', 2, 3),
-    ('4', 3, 0), ('5', 3, 1), ('6', 3, 2), ('-', 3, 3),
-    ('1', 4, 0), ('2', 4, 1), ('3', 4, 2), ('+', 4, 3),
-    ('0', 5, 0), ('.', 5, 1), ('=', 5, 2),
-]
-
-# ボタンの色設定
-def get_button_color(text):
-    if text in ('+', '-', '*', '/', '='):
-        return "#FF9900" # 演算子
-    elif text == 'C':
-        return "#AAAAAA" # クリア
-    else:
-        return "#CCCCCC" # 数字・小数点
-
-for (text, row, col) in buttons:
-    # 0ボタンを2列分に広げる
-    columnspan = 2 if text == '0' else 1
-    col = 0 if text == '0' else col
-
-    button_bg = get_button_color(text)
-
-    # commandに引数付きの関数を設定するためには lambda を使用します
-    button = tk.Button(root, text=text, font=("Arial", 20, "bold"),
-                       bg=button_bg, fg="black", # 色設定を適用
-                       command=lambda t=text: button_click(t))
-
-    button.grid(row=row, column=col, columnspan=columnspan, sticky="nsew", padx=2, pady=2)
-
-
-# --- 3. ウィンドウの行と列の重み付け設定 ---
-# これにより、ウィンドウのサイズを変更したときにボタンやディスプレイが拡大・縮小するようになります
-for i in range(6): # row 0（ディスプレイ）から row 5（最後のボタン）まで
-    root.grid_rowconfigure(i, weight=1)
-for i in range(4): # column 0 から column 3 まで
-    root.grid_columnconfigure(i, weight=1)
 
 # ----------------------------------------------------
 # アプリケーションの実行
